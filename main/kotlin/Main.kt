@@ -1,6 +1,5 @@
 //Yedidya Marashe 213661499
-
-
+//Nehorai Cohen 325356814
 //150060.01.5782.01, 150060.01.5782.48    
 
 
@@ -11,34 +10,35 @@ var asmFile: File? = null
 
 fun main(args: Array<String>) {
 
+    print(args[0]);
     val vmFiles = setUpFiles(args[0]);
-    iterateFiles(vmFiles,args[0]); 
+    iterateFiles(vmFiles);
 }
 fun setUpFiles(dirName : String) : List<File>
 {
     //iterate through the directory and find the two .vm files
     val dir = File(dirName);
     val vmFiles = dir.listFiles().filter { it.extension == "vm" };    
-    val lastDirName = dirName.substring(dirName.lastIndexOf("/") + 1);
+    val lastDirName = dirName.substring(dirName.lastIndexOf("\\") + 1);
 
     //take the last dir name and create new file in the dir with the name of the dir .asm
-    asmFile = File(dirName+"/"+lastDirName + ".asm");
+    asmFile = File(dirName+"\\"+lastDirName + ".asm");
     asmFile?.createNewFile();
     return vmFiles;
 }
-fun iterateFiles(vmFiles: List<File>, dirName: String)
+fun iterateFiles(vmFiles: List<File>)
 {
 
     var totalSales : Double = 0.0;
     var totalBuys : Double = 0.0;
 
     //for every file in the vm list filse open it for reading,
-    // itarate through the lines and write to the asm file
-    vmFiles.forEach {
+     // itarate through the lines and write to the asm file
+   vmFiles.forEach {
         val inputStream: InputStream = File(it.toString()).inputStream()
 
         //print the file name to the asm file
-        var fileName = it.toString().substring(it.toString().lastIndexOf("/") + 1);
+        var fileName = it.toString().substring(it.toString().lastIndexOf("\\") + 1);
         fileName = fileName.substring(0, fileName.lastIndexOf("."));
         asmFile?.appendText(fileName + "\n");
 

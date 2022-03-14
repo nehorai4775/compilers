@@ -8,22 +8,22 @@ var asmFile: File? = null
 
 fun main(args: Array<String>) {
 
-    print(args[0]);
-    val vmFiles = setUpFiles(args[0]);
-    iterateFiles(vmFiles);
+    println(args[0])
+    val vmFiles = setUpFiles(args[0])
+    iterateFiles(vmFiles)
 }
 
 fun setUpFiles(dirName : String) : List<File>
 {
     //iterate through the directory and find the two .vm files
-    val dir = File(dirName);
-    val vmFiles = dir.listFiles().filter { it.extension == "vm" };    
-    val lastDirName = dirName.substring(dirName.lastIndexOf("/") + 1);
-    println("lastDirName: $lastDirName");
+    val dir = File(dirName)
+    val vmFiles = dir.listFiles().filter { it.extension == "vm" }
+    val lastDirName = dirName.substring(dirName.lastIndexOf("\\") + 1)
+    println("lastDirName: $lastDirName")
     //take the last dir name and create new file in the dir with the name of the dir .asm
-    asmFile = File(dirName+"/"+lastDirName + ".asm");
-    asmFile?.createNewFile();
-    return vmFiles;
+    asmFile = File("$dirName\\$lastDirName.asm")
+    asmFile?.createNewFile()
+    return vmFiles
 }
 
 fun iterateFiles(vmFiles: List<File>)
@@ -35,49 +35,50 @@ fun iterateFiles(vmFiles: List<File>)
         val inputStream: InputStream = File(it.toString()).inputStream()
 
         //print the file name to the asm file
-        var fileName = it.toString().substring(it.toString().lastIndexOf("/") + 1);
-        fileName = fileName.substring(0, fileName.lastIndexOf("."));
-        asmFile?.appendText("//"+fileName + "\n");
+        var fileName = it.toString().substring(it.toString().lastIndexOf("/") + 1)
+        fileName = fileName.substring(0, fileName.lastIndexOf("."))
+        asmFile?.appendText("//"+fileName + "\n")
         inputStream.bufferedReader().useLines { lines -> lines.forEach{
                 //it is a line from the vm file.             
-                parseLine(it);
-                } };
-        endFile();
-        inputStream.close(); 
+            parseLine(it)
+                } }
+       endFile()
+        inputStream.close()
     } 
 }
 
 
-
+var count=0
 fun parseLine(lineString : String)
 {
 
     //TODO: if there is any error return the Line number with error message
-    val line = lineString.split(" ");
+    val line = lineString.split(" ")
 
     asmFile?.appendText("//${lineString}\n")
+    count++
     when(line[0])
     {
-        "add" -> add(line);
-        "sub" -> sub(line);
-        "neg" -> neg(line);
-        "eq" -> eq(line);
-        "gt" -> gt(line);
-        "lt" -> lt(line);
-        "and" -> and(line);
-        "or" -> or(line);
-        "not" -> not(line);
-        "push" -> push(line);
-        "pop" -> pop(line);
+        "add" -> add()
+        "sub" -> sub()
+        "neg" -> neg()
+        "eq" -> eq(count)
+        "gt" -> gt(count)
+        "lt" -> lt(count)
+        "and" -> and()
+        "or" -> or()
+        "not" -> not()
+        "push" -> push(line)
+        "pop" -> pop(line)
     }
-    asmFile?.appendText("\n");
+    asmFile?.appendText("\n")
 }
 
 fun endFile()
 {
-    asmFile?.appendText("(end)\n");
-    asmFile?.appendText("@end\n");
-    asmFile?.appendText("0;JMP\n");
+    asmFile?.appendText("(end)\n")
+    asmFile?.appendText("@end\n")
+    asmFile?.appendText("0;JMP\n")
 
 }
 
@@ -147,7 +148,7 @@ fun pop(line : List<String>)
     {
         handleOffsetPop(line[2], 3)
     } 
-    else {}
+
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("AM=M-1\n")
     asmFile?.appendText("D=M\n")
@@ -155,81 +156,137 @@ fun pop(line : List<String>)
     asmFile?.appendText("A=M\n")
     asmFile?.appendText("M=D\n")
 }
-fun add(line : List<String>)
+fun add()
 {
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("A=M-1\n")
     asmFile?.appendText("D=M\n")
     asmFile?.appendText("A=A-1\n")
-    asmFile?.appendText("D=D+M\n")
+    asmFile?.appendText("M=D+M\n")
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("M=M-1\n")
 }
-fun sub(line : List<String>)
+fun sub()
 {
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
+    asmFile?.appendText("A=M-1\n")
     asmFile?.appendText("D=M\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=M-D\n")
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
-    asmFile?.appendText("D=D-M\n")
-    asmFile?.appendText("M=D\n")
-    asmFile?.appendText("@SP\n")
-    asmFile?.appendText("M=M+1\n")
+    asmFile?.appendText("M=M-1\n")
 }
-fun neg(line : List<String>)
+fun neg()
 {
     asmFile?.appendText("//--negate--\n")
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
+    asmFile?.appendText("A=M-1\n")
     asmFile?.appendText("M=-M\n")
+
+}
+fun eq( j:Int)
+{
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("M=M+1\n")
-}
-fun eq(line : List<String>)
-{
-    
-}
-fun gt(line : List<String>)
-{
-}
-fun lt(line : List<String>)
-{
-}
-fun and(line : List<String>)
-{
-    asmFile?.appendText("//--And--\n")
-    asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
+    asmFile?.appendText("A=M-1\n")
     asmFile?.appendText("D=M\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("D=D-M\n")
+    asmFile?.appendText("@TRUE_$j\n")
+    asmFile?.appendText("D;JEQ\n")
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
-    asmFile?.appendText("D=D&M\n")
-    asmFile?.appendText("M=D\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=0\n")
+    asmFile?.appendText("@FALSE_$j\n")
+    asmFile?.appendText("D=1;JMP\n")
+    asmFile?.appendText("(TRUE_$j) //label \n")
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("M=M+1\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=-1\n")
+    asmFile?.appendText("(FALSE_$j) //label \n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("M=M-1\n")
+
+
 }
-fun or(line : List<String>)
+fun gt(j:Int)
+{
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("D=M\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("D=M-D\n")
+    asmFile?.appendText("@TRUE_$j\n")
+    asmFile?.appendText("D;JGT\n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=0\n")
+    asmFile?.appendText("@FALSE_$j\n")
+    asmFile?.appendText("D=1;JMP\n")
+    asmFile?.appendText("(TRUE_$j) //label \n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=-1\n")
+    asmFile?.appendText("(FALSE_$j) //label \n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("M=M-1\n")
+
+}
+fun lt(j:Int)
+{
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("D=M\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("D=M-D\n")
+    asmFile?.appendText("@TRUE_$j\n")
+    asmFile?.appendText("D;JLT\n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=0\n")
+    asmFile?.appendText("@FALSE_$j\n")
+    asmFile?.appendText("D=1;JMP\n")
+    asmFile?.appendText("(TRUE_$j) //label \n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=-1\n")
+    asmFile?.appendText("(FALSE_$j) //label \n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("M=M-1\n")
+
+}
+fun and()
+{
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("A=M-1\n")
+    asmFile?.appendText("D=M\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=D&M\n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("M=M-1\n")
+}
+fun or()
 {
 
-    asmFile?.appendText("//--Or--\n")
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
+    asmFile?.appendText("A=M-1\n")
     asmFile?.appendText("D=M\n")
+    asmFile?.appendText("A=A-1\n")
+    asmFile?.appendText("M=D|M\n")
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
-    asmFile?.appendText("D=D|M\n")
-    asmFile?.appendText("M=D\n")
-    asmFile?.appendText("@SP\n")
-    asmFile?.appendText("M=M+1\n")
+    asmFile?.appendText("M=M-1\n")
 }
-fun not(line : List<String>)
+fun not()
 {
     asmFile?.appendText("//--Not--\n")
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
+    asmFile?.appendText("A=M-1\n")
     asmFile?.appendText("M=!M\n")
-    asmFile?.appendText("@SP\n")
-    asmFile?.appendText("M=M+1\n")
+
 }
 

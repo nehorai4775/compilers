@@ -5,10 +5,6 @@ package VMcompiler
 import java.io.File
 import java.io.InputStream
 var asmFile: File? = null
-String pathSeparator = File.pathSeparator;
-val os = System.getProperty("os.name")
-
-
 
 fun main(args: Array<String>) {
 
@@ -22,10 +18,10 @@ fun setUpFiles(dirName : String) : List<File>
     //iterate through the directory and find the two .vm files
     val dir = File(dirName);
     val vmFiles = dir.listFiles().filter { it.extension == "vm" };    
-    val lastDirName = dirName.substring(dirName.lastIndexOf("\\") + 1);
-
+    val lastDirName = dirName.substring(dirName.lastIndexOf("/") + 1);
+    println("lastDirName: $lastDirName");
     //take the last dir name and create new file in the dir with the name of the dir .asm
-    asmFile = File(dirName+"\\"+lastDirName + ".asm");
+    asmFile = File(dirName+"/"+lastDirName + ".asm");
     asmFile?.createNewFile();
     return vmFiles;
 }
@@ -39,15 +35,19 @@ fun iterateFiles(vmFiles: List<File>)
         val inputStream: InputStream = File(it.toString()).inputStream()
 
         //print the file name to the asm file
-        var fileName = it.toString().substring(it.toString().lastIndexOf("\\") + 1);
+        var fileName = it.toString().substring(it.toString().lastIndexOf("/") + 1);
         fileName = fileName.substring(0, fileName.lastIndexOf("."));
-        asmFile?.appendText("\\"+fileName + "\n");
+        asmFile?.appendText("//"+fileName + "\n");
         inputStream.bufferedReader().useLines { lines -> lines.forEach{
                 //it is a line from the vm file.             
                 parseLine(it);
                 } };
-        inputStream.close(); } 
+        endFile();
+        inputStream.close(); 
+    } 
 }
+
+
 
 fun parseLine(lineString : String)
 {
@@ -55,7 +55,7 @@ fun parseLine(lineString : String)
     //TODO: if there is any error return the Line number with error message
     val line = lineString.split(" ");
 
-    asmFile?.appendText("//${line}\n")
+    asmFile?.appendText("//${lineString}\n")
     when(line[0])
     {
         "add" -> add(line);
@@ -73,7 +73,13 @@ fun parseLine(lineString : String)
     asmFile?.appendText("\n");
 }
 
+fun endFile()
+{
+    asmFile?.appendText("(end)\n");
+    asmFile?.appendText("@end\n");
+    asmFile?.appendText("0;JMP\n");
 
+}
 
 
 fun handleOffsetPush(offset : String, base : Int)
@@ -98,15 +104,12 @@ fun handleOffsetPop(offset : String, base : Int)
 }
 
 
-fun comment(line : List<String>)
-{
-    asmFile?.appendText("//${line[1]}\n")
-}
+
 fun push(line : List<String>)
 {
     if(line[1]=="constant")
     {
-        asmFile?.appendText("@${line[1]}\n")
+        asmFile?.appendText("@${line[2]}\n")
         asmFile?.appendText("D=A\n")
         asmFile?.appendText("@SP\n")
         asmFile?.appendText("A=M\n")
@@ -155,14 +158,12 @@ fun pop(line : List<String>)
 fun add(line : List<String>)
 {
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
+    asmFile?.appendText("A=M-1\n")
     asmFile?.appendText("D=M\n")
-    asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
+    asmFile?.appendText("A=A-1\n")
     asmFile?.appendText("D=D+M\n")
-    asmFile?.appendText("M=D\n")
     asmFile?.appendText("@SP\n")
-    asmFile?.appendText("M=M+1\n")
+    asmFile?.appendText("M=M-1\n")
 }
 fun sub(line : List<String>)
 {
@@ -187,6 +188,7 @@ fun neg(line : List<String>)
 }
 fun eq(line : List<String>)
 {
+    
 }
 fun gt(line : List<String>)
 {

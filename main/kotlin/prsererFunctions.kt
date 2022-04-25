@@ -154,8 +154,16 @@ fun handlePush(offset : String, base : Int)
 
 fun handleOffsetPop(offset : String, base : Int)
 {
+        var loc = (Integer.parseInt(offset) + base).toString()
+        asmFile?.appendText("@" + loc+ "\n")
+        asmFile?.appendText("D=A\n")
+        asmFile?.appendText("@14\n")
+        asmFile?.appendText("M=D\n")
+    /*
+
     var loc = (Integer.parseInt(offset) + base).toString()
     asmFile?.appendText("@" + loc+ "\n")
+
     asmFile?.appendText("D=A\n")
     asmFile?.appendText("@14\n")
     asmFile?.appendText("M=D\n")
@@ -166,11 +174,19 @@ fun handleOffsetPop(offset : String, base : Int)
     asmFile?.appendText("@14\n")
     asmFile?.appendText("A=M\n")
     asmFile?.appendText("M=D\n")
+
+     */
+     /*
+    asmFile?.appendText("M=D\n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("M=M-1\n")
+*/
 }
 
 
 fun handleOffsetPush(offset : String, base : Int)
 {
+
     var loc = (Integer.parseInt(offset) + base).toString()
     asmFile?.appendText("@" + loc + "\n")
     asmFile?.appendText("D=M\n")
@@ -322,7 +338,8 @@ fun pop(line : List<String>)
     //take caer of the case where the pop is static, temp and pointer
     if (line[1] == "static") 
     {
-        handleOffsetPop(line[2], 16)
+        popStatic(line);
+       // handleOffsetPop(line[2], 16)
     } else if (line[1] == "temp") 
     {
         handleOffsetPop(line[2], 5)
@@ -347,6 +364,16 @@ fun pop(line : List<String>)
         popThat(Integer.parseInt(line[2]))
     }
 
+}
+
+fun popStatic(line: List<String>) {
+
+    asmFile?.appendText("@SP\n");
+    asmFile?.appendText("M=M-1\n");
+    asmFile?.appendText("A=M\n");
+    asmFile?.appendText("D=M\n");
+    asmFile?.appendText("@"+ asmFile?.name+ "."+line[2]+"\n");
+    asmFile?.appendText("M=D\n");
 
 }
 
@@ -430,7 +457,7 @@ fun popThat(n:Int)
 
 
 
-fun push(line : List<String>)
+fun push(line : List<String>,count:Int)
 {
     if(line[1]=="constant")
     {
@@ -448,7 +475,7 @@ fun push(line : List<String>)
     }
     else if(line[1]=="static")
     {
-        pushStatic(Integer.parseInt(line[2]))
+        pushStatic(Integer.parseInt(line[2]),count)
     }
     else if(line[1]=="temp")
     {
@@ -526,10 +553,9 @@ fun pushLocal(n:Int)
     asmFile?.appendText("M=M+1\n")
 }
 
-fun pushStatic(n:Int)
+fun pushStatic(n:Int,count:Int)
 {
-    
-    asmFile?.appendText("@${n}\n")
+    asmFile?.appendText("@${asmFile?.name}.${n}\n")
     asmFile?.appendText("D=M\n")
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("A=M\n")

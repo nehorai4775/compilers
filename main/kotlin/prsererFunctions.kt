@@ -21,11 +21,11 @@ fun ifGoto(line : List<String>)
     asmFile?.appendText("@${line[1]}\n")
     asmFile?.appendText("D;JNE\n")
 }
-fun call(line : List<String>)
+fun call(line : List<String>,count:Int)
 {
     val functionName = line[1]
     val numArgs = line[2].toInt() +5
-    asmFile?.appendText("@return-address${functionName}\n")
+    asmFile?.appendText("@return-address${count}\n")
     asmFile?.appendText("D=A\n")
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("A=M\n")
@@ -51,7 +51,7 @@ fun call(line : List<String>)
     asmFile?.appendText("M=D\n")
 
     goto(line)
-    asmFile?.appendText("(return-address${functionName})\n")
+    asmFile?.appendText("(return-address${count})\n")
 }
 
 fun pushLable(s: String) {

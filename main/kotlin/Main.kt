@@ -29,6 +29,60 @@ fun setUpFiles(dirName : String) : List<File>
 fun iterateFiles(vmFiles: List<File>)
 {
 
+    asmFile?.appendText("@256\n" +
+            "D = A\n" +
+            "@SP\n" +
+            "M = D\n" +
+            "// call Sys.init\n" +
+            "@Sys.init.ReturnAddress.0\n" +
+            "D = A\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@LCL\n" +
+            "D = M\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@ARG\n" +
+            "D = M\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@THIS\n" +
+            "D = M\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@THAT\n" +
+            "D = M\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@SP\n" +
+            "D = M\n" +
+            "@5\n" +
+            "D = D-A\n" +
+            "@ARG\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "D = M\n" +
+            "@LCL\n" +
+            "M = D\n" +
+            "@Sys.init\n" +
+            "0;JMP\n" +
+            "(Sys.init.ReturnAddress.0)")
+
     //for every file in the vm list filse open it for reading,
      // itarate through the lines and write to the asm file
    vmFiles.forEach {
@@ -73,7 +127,7 @@ fun parseLine(lineString : String,FileNameReading : String)
         "label" -> label(line)
         "goto" -> goto(line)
         "if-goto" -> ifGoto(line)
-        "call" -> call(line)
+        "call" -> call(line,count)
         "function" -> function(line)
         "return" -> returnFunc()
 

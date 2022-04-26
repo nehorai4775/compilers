@@ -4,13 +4,15 @@
 import java.io.File
 import java.io.InputStream
 import VMcompiler.*
+import java.security.KeyStore.TrustedCertificateEntry
 
 fun main(args: Array<String>) {
 
     println(args[0])
     val vmFiles = setUpFiles(args[0])
-    //if(vmFiles.size != 1)
+    if(vmFiles.size != 1)
         bootStrap()
+        OneFIle = false
     iterateFiles(vmFiles)
 }
 
@@ -78,12 +80,12 @@ fun parseLine(lineString : String,FileNameReading : String)
         "and" -> and()
         "or" -> or()
         "not" -> not()
-        "push" -> push(line,count,FileNameReading)
+        "push" -> push(line,count, FileNameReading)
         "pop" -> pop(line,FileNameReading)
-        "label" -> label(line,FileNameReading)
-        "goto" -> goto(line,FileNameReading)
-        "if-goto" -> ifGoto(line,FileNameReading)
-        "call" -> call(line,count,FileNameReading)
+        "label" -> label(line)
+        "goto" -> goto(line)
+        "if-goto" -> ifGoto(line)
+        "call" -> call(line,count)
         "function" -> function(line,count)
         "return" -> returnFunc()
 

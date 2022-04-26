@@ -4,7 +4,7 @@ import java.io.File
 var asmFile: File? = null
 var FileName: String? = null
 var listFunction = mutableListOf<String>()
-
+var OneFIle :Boolean = true
 fun bootStrap()
 {
     asmFile?.appendText(
@@ -63,30 +63,30 @@ fun bootStrap()
             "(Sys.init.ReturnAddress.0)\n")
 
 }
-fun label(line : List<String>,fileName: String)
+fun label(line : List<String>)
 {
     var funcName = ""
-    /*if(!listFunction.isEmpty())
+    if(!listFunction.isEmpty() && OneFIle)
         funcName = listFunction.last()
 
-     */
-    asmFile?.appendText("(${line[1]+fileName+funcName})\n")
+
+    asmFile?.appendText("(${line[1]+funcName})\n")
 }
-fun goto(line: List<String>,fileName: String)
+fun goto(line: List<String>)
 {
 
     var funcName = ""
-    /*
-    if(!listFunction.isEmpty()) {
+
+    if(!listFunction.isEmpty() && OneFIle) {
         funcName = listFunction.last()
     }
 
 
-     */
-    asmFile?.appendText("@${line[1]+fileName+ funcName}\n")
+
+    asmFile?.appendText("@${line[1]+ funcName}\n")
     asmFile?.appendText("0;JMP\n")
 }
-fun ifGoto(line : List<String>,fileName: String)
+fun ifGoto(line : List<String>)
 {
 
     var funcName = ""
@@ -95,15 +95,15 @@ fun ifGoto(line : List<String>,fileName: String)
     asmFile?.appendText("A=M\n")
     asmFile?.appendText("D=M\n")
 
-    /*if(!listFunction.isEmpty()) {
+    if(!listFunction.isEmpty() && OneFIle) {
         funcName = listFunction.last()
     }
 
-     */
+
     asmFile?.appendText("@${line[1] + funcName}\n")
     asmFile?.appendText("D;JNE\n")
 }
-fun call(line : List<String>,count:Int,fileName: String)
+fun call(line : List<String>,count:Int)
 {
     val functionName = line[1]
     val numArgs = line[2].toInt() +5
@@ -132,7 +132,7 @@ fun call(line : List<String>,count:Int,fileName: String)
     asmFile?.appendText("@LCL\n")
     asmFile?.appendText("M=D\n")
 
-    goto(line, fileName)
+    goto(line)
     asmFile?.appendText("(return-address${count})\n")
 }
 

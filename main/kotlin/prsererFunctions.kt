@@ -3,25 +3,107 @@ import java.io.File
 
 var asmFile: File? = null
 var FileName: String? = null
-fun label(line : List<String>)
+var listFunction = mutableListOf<String>()
+
+fun bootStrap()
 {
-    asmFile?.appendText("(${line[1]})\n")
+    asmFile?.appendText(
+        "//BootStrap\n" + "@256\n" +
+            "D = A\n" +
+            "@SP\n" +
+            "M = D\n" +
+            "// call Sys.init\n" +
+            "@Sys.init.ReturnAddress.0\n" +
+            "D = A\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@LCL\n" +
+            "D = M\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@ARG\n" +
+            "D = M\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@THIS\n" +
+            "D = M\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@THAT\n" +
+            "D = M\n" +
+            "@SP\n" +
+            "A = M\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "M = M+1\n" +
+            "@SP\n" +
+            "D = M\n" +
+            "@5\n" +
+            "D = D-A\n" +
+            "@ARG\n" +
+            "M = D\n" +
+            "@SP\n" +
+            "D = M\n" +
+            "@LCL\n" +
+            "M = D\n" +
+            "@Sys.init\n" +
+            "0;JMP\n" +
+            "(Sys.init.ReturnAddress.0)\n")
+
 }
-fun goto(line: List<String>)
+fun label(line : List<String>,fileName: String)
 {
-    asmFile?.appendText("@${line[1]}\n")
+    var funcName = ""
+    /*if(!listFunction.isEmpty())
+        funcName = listFunction.last()
+
+     */
+    asmFile?.appendText("(${line[1]+fileName+funcName})\n")
+}
+fun goto(line: List<String>,fileName: String)
+{
+
+    var funcName = ""
+    /*
+    if(!listFunction.isEmpty()) {
+        funcName = listFunction.last()
+    }
+
+
+     */
+    asmFile?.appendText("@${line[1]+fileName+ funcName}\n")
     asmFile?.appendText("0;JMP\n")
 }
-fun ifGoto(line : List<String>)
+fun ifGoto(line : List<String>,fileName: String)
 {
+
+    var funcName = ""
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("M=M-1\n")
     asmFile?.appendText("A=M\n")
     asmFile?.appendText("D=M\n")
-    asmFile?.appendText("@${line[1]}\n")
+
+    /*if(!listFunction.isEmpty()) {
+        funcName = listFunction.last()
+    }
+
+     */
+    asmFile?.appendText("@${line[1] + funcName}\n")
     asmFile?.appendText("D;JNE\n")
 }
-fun call(line : List<String>,count:Int)
+fun call(line : List<String>,count:Int,fileName: String)
 {
     val functionName = line[1]
     val numArgs = line[2].toInt() +5
@@ -50,7 +132,7 @@ fun call(line : List<String>,count:Int)
     asmFile?.appendText("@LCL\n")
     asmFile?.appendText("M=D\n")
 
-    goto(line)
+    goto(line, fileName)
     asmFile?.appendText("(return-address${count})\n")
 }
 
@@ -66,8 +148,9 @@ fun pushLable(s: String) {
 
 }
 
-fun function(line : List<String>)
+fun function(line : List<String>, count:Int)
 {
+    listFunction.add(line[1]);
     val funcName = line[1]
     asmFile?.appendText("(${funcName})\n")
     asmFile?.appendText("@${line[2]}\n")

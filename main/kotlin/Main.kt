@@ -9,6 +9,8 @@ fun main(args: Array<String>) {
 
     println(args[0])
     val vmFiles = setUpFiles(args[0])
+    //if(vmFiles.size != 1)
+        bootStrap()
     iterateFiles(vmFiles)
 }
 
@@ -29,59 +31,8 @@ fun setUpFiles(dirName : String) : List<File>
 fun iterateFiles(vmFiles: List<File>)
 {
 
-    asmFile?.appendText("@256\n" +
-            "D = A\n" +
-            "@SP\n" +
-            "M = D\n" +
-            "// call Sys.init\n" +
-            "@Sys.init.ReturnAddress.0\n" +
-            "D = A\n" +
-            "@SP\n" +
-            "A = M\n" +
-            "M = D\n" +
-            "@SP\n" +
-            "M = M+1\n" +
-            "@LCL\n" +
-            "D = M\n" +
-            "@SP\n" +
-            "A = M\n" +
-            "M = D\n" +
-            "@SP\n" +
-            "M = M+1\n" +
-            "@ARG\n" +
-            "D = M\n" +
-            "@SP\n" +
-            "A = M\n" +
-            "M = D\n" +
-            "@SP\n" +
-            "M = M+1\n" +
-            "@THIS\n" +
-            "D = M\n" +
-            "@SP\n" +
-            "A = M\n" +
-            "M = D\n" +
-            "@SP\n" +
-            "M = M+1\n" +
-            "@THAT\n" +
-            "D = M\n" +
-            "@SP\n" +
-            "A = M\n" +
-            "M = D\n" +
-            "@SP\n" +
-            "M = M+1\n" +
-            "@SP\n" +
-            "D = M\n" +
-            "@5\n" +
-            "D = D-A\n" +
-            "@ARG\n" +
-            "M = D\n" +
-            "@SP\n" +
-            "D = M\n" +
-            "@LCL\n" +
-            "M = D\n" +
-            "@Sys.init\n" +
-            "0;JMP\n" +
-            "(Sys.init.ReturnAddress.0)")
+
+
 
     //for every file in the vm list filse open it for reading,
      // itarate through the lines and write to the asm file
@@ -96,13 +47,18 @@ fun iterateFiles(vmFiles: List<File>)
                 //it is a line from the vm file.             
             parseLine(it,fileName)
                 } }
+       if(!listFunction.isEmpty())
+           listFunction.removeFirst()
        endFile()
         inputStream.close()
-    } 
+    }
+    count2++
 }
 
 
 var count=0
+var count2=0
+
 fun parseLine(lineString : String,FileNameReading : String)
 {
 
@@ -124,11 +80,11 @@ fun parseLine(lineString : String,FileNameReading : String)
         "not" -> not()
         "push" -> push(line,count,FileNameReading)
         "pop" -> pop(line,FileNameReading)
-        "label" -> label(line)
-        "goto" -> goto(line)
-        "if-goto" -> ifGoto(line)
-        "call" -> call(line,count)
-        "function" -> function(line)
+        "label" -> label(line,FileNameReading)
+        "goto" -> goto(line,FileNameReading)
+        "if-goto" -> ifGoto(line,FileNameReading)
+        "call" -> call(line,count,FileNameReading)
+        "function" -> function(line,count)
         "return" -> returnFunc()
 
     }

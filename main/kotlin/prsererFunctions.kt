@@ -1,12 +1,11 @@
 package VMcompiler
 import java.io.File
-import java.io.InputStream
 
 var asmFile: File? = null
 var FileName: String? = null
 fun label(line : List<String>)
 {
-    asmFile?.appendText("(${line[1]}))\n")
+    asmFile?.appendText("(${line[1]})\n")
 }
 fun goto(line: List<String>)
 {
@@ -25,7 +24,7 @@ fun ifGoto(line : List<String>)
 fun call(line : List<String>)
 {
     val functionName = line[1]
-    val numArgs = line[2].toInt()
+    val numArgs = line[2].toInt() +5
     asmFile?.appendText("@return-address${functionName}\n")
     asmFile?.appendText("D=A\n")
     asmFile?.appendText("@SP\n")
@@ -33,29 +32,45 @@ fun call(line : List<String>)
     asmFile?.appendText("M=D\n")
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("M=M+1\n")
-    for (i in 0 until numArgs)
-    {
-        asmFile?.appendText("@SP\n")
-        asmFile?.appendText("A=M-1\n")
-        asmFile?.appendText("D=M\n")
-        asmFile?.appendText("@ARG\n")
-        asmFile?.appendText("A=M\n")
-        asmFile?.appendText("M=D\n")
-        asmFile?.appendText("@ARG\n")
-        asmFile?.appendText("M=M+1\n")
-    }
+    pushLable("LCL")
+    pushLable("ARG")
+    pushLable("THIS")
+    pushLable("THAT")
+
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("D=M\n")
+    asmFile?.appendText("@${numArgs}\n")
+
+    asmFile?.appendText("D=D-A\n")
+    asmFile?.appendText("@ARG\n")
+    asmFile?.appendText("M=D\n")
+
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("D=M\n")
     asmFile?.appendText("@LCL\n")
+    asmFile?.appendText("M=D\n")
+
+    goto(line)
+    asmFile?.appendText("(return-address${functionName})\n")
+}
+
+fun pushLable(s: String) {
+    asmFile?.appendText("@${s}\n")
     asmFile?.appendText("D=M\n")
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("A=M\n")
     asmFile?.appendText("M=D\n")
+    asmFile?.appendText("@SP\n")
+    asmFile?.appendText("M=M+1\n")
+
 
 }
+
 fun function(line : List<String>)
 {
     val funcName = line[1]
     asmFile?.appendText("(${funcName})\n")
-    asmFile?.appendText("(${line[2]})\n")
+    asmFile?.appendText("@${line[2]}\n")
     asmFile?.appendText("D=A\n")
 
 
@@ -63,7 +78,7 @@ fun function(line : List<String>)
     val loopStart = "${funcName}_loopStart"
 
     asmFile?.appendText("@${loopEnd}\n")
-    asmFile?.appendText("D;JGT\n")
+    asmFile?.appendText("D;JEQ\n")
     asmFile?.appendText("(${loopStart})\n")
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("A=M\n")
@@ -71,7 +86,7 @@ fun function(line : List<String>)
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("M=M+1\n")
     asmFile?.appendText("@${loopStart}\n")
-    asmFile?.appendText("D=D-1\n")
+    asmFile?.appendText("D=D-1;JNE\n")
     asmFile?.appendText("(${loopEnd})\n")
 }
 fun returnFunc()
@@ -82,7 +97,7 @@ fun returnFunc()
     asmFile?.appendText("@5\n")
     asmFile?.appendText("A=D-A\n")
     asmFile?.appendText("D=M\n")
-    asmFile?.appendText("@R13\n")
+    asmFile?.appendText("@13\n")
     asmFile?.appendText("M=D\n")
 
     asmFile?.appendText("@SP\n")
@@ -126,7 +141,7 @@ fun returnFunc()
     asmFile?.appendText("@LCL\n")
     asmFile?.appendText("M=D\n")
 
-    asmFile?.appendText("@R13\n")
+    asmFile?.appendText("@13\n")
     asmFile?.appendText("A=M\n")
     asmFile?.appendText("0;JMP\n")
 }
@@ -152,35 +167,20 @@ fun handlePush(offset : String, base : Int)
 
 
 
-fun handleOffsetPop(offset : String, base : Int)
+fun popTemp(offset : String, base : Int)
 {
-        var loc = (Integer.parseInt(offset) + base).toString()
-        asmFile?.appendText("@" + loc+ "\n")
-        asmFile?.appendText("D=A\n")
-        asmFile?.appendText("@14\n")
-        asmFile?.appendText("M=D\n")
-    /*
+    asmFile?.appendText("@SP\n");
+    asmFile?.appendText("A=M-1\n");
+    asmFile?.appendText("D=M\n");
+
 
     var loc = (Integer.parseInt(offset) + base).toString()
     asmFile?.appendText("@" + loc+ "\n")
 
-    asmFile?.appendText("D=A\n")
-    asmFile?.appendText("@14\n")
-    asmFile?.appendText("M=D\n")
-
-    asmFile?.appendText("@SP\n")
-    asmFile?.appendText("AM=M-1\n")
-    asmFile?.appendText("D=M\n")
-    asmFile?.appendText("@14\n")
-    asmFile?.appendText("A=M\n")
-    asmFile?.appendText("M=D\n")
-
-     */
-     /*
     asmFile?.appendText("M=D\n")
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("M=M-1\n")
-*/
+
 }
 
 
@@ -333,16 +333,16 @@ fun not()
 }
 
 
-fun pop(line : List<String>)
+fun pop(line : List<String>,fileName : String)
 {
     //take caer of the case where the pop is static, temp and pointer
     if (line[1] == "static") 
     {
-        popStatic(line);
+        popStatic(line,fileName);
        // handleOffsetPop(line[2], 16)
     } else if (line[1] == "temp") 
     {
-        handleOffsetPop(line[2], 5)
+        popTemp(line[2], 5)
     } else if (line[1] == "pointer") 
     {
         popPointer(line[2])
@@ -366,15 +366,15 @@ fun pop(line : List<String>)
 
 }
 
-fun popStatic(line: List<String>) {
+fun popStatic(line: List<String>, fileName : String) {
 
     asmFile?.appendText("@SP\n");
-    asmFile?.appendText("M=M-1\n");
-    asmFile?.appendText("A=M\n");
+    asmFile?.appendText("A=M-1\n");
     asmFile?.appendText("D=M\n");
-    asmFile?.appendText("@"+ asmFile?.name+ "."+line[2]+"\n");
+    asmFile?.appendText("@"+ fileName+ "."+line[2]+"\n");
     asmFile?.appendText("M=D\n");
-
+    asmFile?.appendText("@SP\n");
+    asmFile?.appendText("M=M-1\n");
 }
 
 fun popPointer(pointer:String)
@@ -457,7 +457,7 @@ fun popThat(n:Int)
 
 
 
-fun push(line : List<String>,count:Int)
+fun push(line : List<String>,count:Int, fileName : String)
 {
     if(line[1]=="constant")
     {
@@ -475,7 +475,7 @@ fun push(line : List<String>,count:Int)
     }
     else if(line[1]=="static")
     {
-        pushStatic(Integer.parseInt(line[2]),count)
+        pushStatic(Integer.parseInt(line[2]),count,fileName)
     }
     else if(line[1]=="temp")
     {
@@ -553,9 +553,9 @@ fun pushLocal(n:Int)
     asmFile?.appendText("M=M+1\n")
 }
 
-fun pushStatic(n:Int,count:Int)
+fun pushStatic(n:Int,count:Int,fileName : String)
 {
-    asmFile?.appendText("@${asmFile?.name}.${n}\n")
+    asmFile?.appendText("@${fileName}.${n}\n")
     asmFile?.appendText("D=M\n")
     asmFile?.appendText("@SP\n")
     asmFile?.appendText("A=M\n")

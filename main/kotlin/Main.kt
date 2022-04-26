@@ -40,7 +40,7 @@ fun iterateFiles(vmFiles: List<File>)
         asmFile?.appendText("//"+fileName + "\n")
         inputStream.bufferedReader().useLines { lines -> lines.forEach{
                 //it is a line from the vm file.             
-            parseLine(it)
+            parseLine(it,fileName)
                 } }
        endFile()
         inputStream.close()
@@ -49,7 +49,7 @@ fun iterateFiles(vmFiles: List<File>)
 
 
 var count=0
-fun parseLine(lineString : String)
+fun parseLine(lineString : String,FileNameReading : String)
 {
 
     //TODO: if there is any error return the Line number with error message
@@ -68,8 +68,8 @@ fun parseLine(lineString : String)
         "and" -> and()
         "or" -> or()
         "not" -> not()
-        "push" -> push(line,count)
-        "pop" -> pop(line)
+        "push" -> push(line,count,FileNameReading)
+        "pop" -> pop(line,FileNameReading)
         "label" -> label(line)
         "goto" -> goto(line)
         "if-goto" -> ifGoto(line)

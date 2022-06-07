@@ -41,12 +41,10 @@ val keyword: List<String> = listOf(
     "while",
     "return"
 )
-
-fun main(args: Array<String>) {
+fun main(args: Array<String>){
     setUpFiles2(args[0])
-
-
 }
+
 
 fun setUpFiles2(dirName: String) {
 
@@ -59,6 +57,9 @@ fun setUpFiles2(dirName: String) {
         xmlFile = File("$dirName\\$newfileName"+"T.xml")
         xmlFile?.createNewFile()
         iterateFiles2(file)
+        //val xml = Xml("$dirName\\$newfileName"+"T.xml")
+       // val preser = Parser(xml)
+       // preser.parse()
     }
 }
 
@@ -175,8 +176,10 @@ fun createXml(input: String) {
                 val identifier: Element = doc.createElement("identifier")
                 identifier.appendChild(doc.createTextNode(temp.toString()))
                 rootElement.appendChild(identifier)
+
             }
         }
+
         else{
             i++
         }

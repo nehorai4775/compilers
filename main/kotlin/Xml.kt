@@ -1,10 +1,5 @@
 import java.io.*
 
-enum class TokenType {
-    keyword, identifier, symbol, stringConstant , integerConstant
-}
-
-
 class Xml {
 
     var position: Int = 0
@@ -14,7 +9,7 @@ class Xml {
         //read the file into content
         readXml( xmlFileName)
         //set the position to 0
-        position = 0
+        position = 1
     }
 
     constructor() {}
@@ -44,26 +39,42 @@ class Xml {
     }
 
 
-    fun nextTokenType(): TokenType {
+    fun nextTokenType(): Tag {
 
         var node = fileContentList[position]
         var tokenTypestring = node.subSequence(node.indexOf("<") + 1, node.indexOf(">")).toString()
 
-        return TokenType.valueOf(tokenTypestring)
+        return Tag.valueOf(tokenTypestring.uppercase())
     }
 
     fun nextTokenContent() :String
     {
         var node = fileContentList[position]
-        var content = node.subSequence(node.indexOf(">") + 1, node.lastIndexOf("<")).toString()
-        if(content.contains(" "))
+        var content = node.subSequence(node.indexOf(">") + 2, node.lastIndexOf("<") - 1).toString()
+        /*if(content.contains(" "))
         {
             content = content.substring(1)
             if(content.contains(" "))
             {
                 content = content.substring(0, content.indexOf(" "))
             }
-        }
+        }*/
+        return content
+    }
+
+    fun getRemoveNextTokenContent() :String
+    {
+        var node = fileContentList[position]
+        position++
+        var content = node.subSequence(node.indexOf(">") + 2, node.lastIndexOf("<") - 1).toString()
+        /*if(content.contains(" "))
+        {
+            content = content.substring(1)
+            if(content.contains(" "))
+            {
+                content = content.substring(0, content.indexOf(" "))
+            }
+        }*/
         return content
     }
 

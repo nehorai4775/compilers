@@ -1,5 +1,5 @@
 
-enum class Tag {
+/*enum class Tag {
     CLASS, CLASS_VAR_DEC, SUBROUTINE_DEC, PARAMETER_LIST,
     SUBROUTINE_BODY, VAR_DEC, STATEMENTS, LET_STATEMENT,
     IF_STATEMENT, WHILE_STATEMENT, DO_STATEMENT, RETURN_STATEMENT,
@@ -553,4 +553,4 @@ class Parser {
         }
 
 
-    }
+    }*/

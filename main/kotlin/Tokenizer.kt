@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
 }
 
 fun setUpFiles2(dirName: String) {
-    //iterate through the directory and find the two .vm files
+
     val dir = File(dirName)
     val jackFiles = dir.listFiles().filter { it.extension == "jack" }
     for (file in jackFiles) {
@@ -121,12 +121,14 @@ fun createXml(input: String) {
                         i++
                         if (input[i].equals('/'))
                             flag = 0
+                            i++
                     }
                 }
             } else {
                 val symbol: Element = doc.createElement("symbol")
                 symbol.appendChild(doc.createTextNode("/"))
                 rootElement.appendChild(symbol)
+                i++
             }
 
         } else if (symbols1.contains(input[i].toString())) {
@@ -134,16 +136,29 @@ fun createXml(input: String) {
                 val symbol: Element = doc.createElement("symbol")
                 symbol.appendChild(doc.createTextNode("&gt"))
                 rootElement.appendChild(symbol)
+                i++
             }
             else if(input[i].equals('>')){
                 val symbol: Element = doc.createElement("symbol")
                 symbol.appendChild(doc.createTextNode("&lt"))
                 rootElement.appendChild(symbol)
+                i++
+            }else if(input[i].equals('"')){
+                val symbol: Element = doc.createElement("symbol")
+                symbol.appendChild(doc.createTextNode("&quot"))
+                rootElement.appendChild(symbol)
+                i++
+            }else if(input[i].equals('&')){
+                val symbol: Element = doc.createElement("symbol")
+                symbol.appendChild(doc.createTextNode("&amp"))
+                rootElement.appendChild(symbol)
+                i++
             }
             else {
                 val symbol: Element = doc.createElement("symbol")
                 symbol.appendChild(doc.createTextNode(input[i].toString()))
                 rootElement.appendChild(symbol)
+                i++
             }
         } else if (input[i].isLetter() or input[i].equals("_")) {
             temp = input[i].toString()
@@ -162,7 +177,9 @@ fun createXml(input: String) {
                 rootElement.appendChild(identifier)
             }
         }
-        i++
+        else{
+            i++
+        }
 
     }
 
